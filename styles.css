@@ -1,0 +1,147 @@
+/* CSS Variables matching viz-config.js colors */
+:root {
+  --blue-background: rgba(37, 138, 188, 0.2);
+  --blue-primary: rgba(37, 138, 188, 1);
+  --coral-background: rgba(255, 127, 80, 0.3);
+  --slider-color: rgba(0, 155, 132, 1);
+}
+
+/* Custom Range Slider Styles */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 65%; /* Reduced slider width slightly */
+  height: 8px;
+  background: lightgray; /* Unfilled part of the track (right side) */
+  border-radius: 4px;
+  outline: none;
+  opacity: 0.9;
+  transition: opacity .2s;
+  cursor: pointer;
+}
+input[type="range"]:hover {
+  opacity: 1;
+}
+
+/* Thumb (Handle) Styles - Common */
+input[type="range"]::-webkit-slider-thumb,
+input[type="range"]::-moz-range-thumb {
+  -webkit-appearance: none; /* Required for Webkit */
+  appearance: none;         /* Standard */
+  width: 18px;
+  height: 18px;
+  background: black;
+  border-radius: 50%;
+  border: 1px solid #333; /* Optional: slightly darker border for thumb */
+  cursor: pointer;
+  margin-top: -5px; /* Vertically center thumb on track (track_height - thumb_height) / 2 roughly, if track height is 8px and thumb 18px, margin is (8-18)/2 = -5px */
+}
+
+/* Filled part of the track (left side) */
+input[type=range]::-webkit-progress-value {
+  background-color: rgba(0, 0, 255, 0.6); /* Blue fill */
+  border-radius: 4px 0 0 4px; /* Match track radius on left */
+}
+input[type=range]::-moz-range-progress {
+  background-color: rgba(0, 0, 255, 0.6); /* Blue fill */
+  height: 8px; /* Ensure it matches track height */
+  border-radius: 4px 0 0 4px;
+}
+input[type=range]::-ms-fill-lower {
+  background: rgba(0, 0, 255, 0.6); /* Blue fill for IE/Edge */
+  border-radius: 4px 0 0 4px;
+}
+/* Unfilled part for IE/Edge - should match the main background */
+input[type=range]::-ms-fill-upper {
+  background: lightgray;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Styles for foreignObject content (KaTeX labels) */
+.katex-label-container {
+  width: 100%; /* Let foreignObject control width via attribute */
+  height: 100%; /* Let foreignObject control height via attribute */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; /* Consistent font */
+  /* font-size is set in JS (labelFontSize), currently 12px, could be set here if static */
+}
+
+/* Force KaTeX to use sans-serif fonts in bar labels */
+.katex-label-container .katex {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+  font: inherit !important;
+}
+
+.katex-label-container .katex * {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+}
+
+/* General font unification for the D3 viz area */
+#controls-area label,
+#controls-area span,
+#pnp-chart-container text { /* Targets D3 axis labels, titles etc. */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+#controls-area label,
+#controls-area span {
+  font-size: 14px; /* Font size for slider labels and value displays */
+}
+
+/* Task Box Styles */
+dt-article > .task-box {
+  background: var(--blue-background);
+  border-left: 4px solid var(--blue-primary);
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+.task-box:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.task-box strong {
+  color: var(--blue-primary);
+  font-size: 1.05em;
+}
+
+.task-box p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.task-box details {
+  margin-top: 12px;
+  padding-left: 8px;
+}
+
+.task-box summary {
+  cursor: pointer;
+  color: var(--blue-primary);
+  font-weight: 500;
+  user-select: none;
+  transition: color 0.2s ease;
+  list-style-position: outside;
+  padding-left: 4px;
+}
+
+.task-box summary:hover {
+  color: rgba(30, 110, 150, 1); /* Slightly darker on hover */
+}
+
+.task-box details[open] summary {
+  margin-bottom: 8px;
+  color: rgba(30, 110, 150, 1); /* Slightly darker when open */
+}
+
+.task-box details > *:not(summary) {
+  padding-left: 20px;
+  color: #495057;
+  font-size: 0.95em;
+  line-height: 1.5;
+}

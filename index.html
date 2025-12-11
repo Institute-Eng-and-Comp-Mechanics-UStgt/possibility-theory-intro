@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="template.js"></script>
+
+<!-- Math & Styles -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false}
+            ]
+        });
+    });
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="styles.css">
+
+<script type="text/front-matter">
+  title: "Possibility Theory for Dummies"
+  authors:
+  - Tom Könecke: https://www.itm.uni-stuttgart.de/institut/team/Koenecke/
+  affiliations:
+  - Institute of Engineering and Computational Mechanics: https://www.itm.uni-stuttgart.de/
+</script>
+
+<dt-article>
+    <h1>Possibility Theory Basics</h1>
+    <h2>Introduction to a beautiful language of uncertainty</h2>
+    <dt-byline></dt-byline>
+
+    <p>
+        This document aims to serve as an introduction to possibility theory, providing the basics for people seeking to understand this framework for uncertainty quantification.
+    </p>
+
+    <p>
+        The following formulation of possibility theory is in the style as it is used at the Institute of Engineering and Computational Mechanics at the University of Stuttgart.
+        This approach builds upon Professor Hanss's work in fuzzy arithmetic and incorporates notation and views from contributions from Didier Dubois, Henry Prade, and more recently, Ryan Martin, Scott Ferson and Michael Balch.
+        We are an institute located in computational mechanics, so we adopt a primarily applied and numerical perspective on the subject.
+        Let's establish the theoretical foundations.
+    </p>
+
+    <div class="task-box">
+        <p>
+            <strong>Task:</strong> Read Chapter 1 (excluding 1.4) of Dominik's Dissertation <dt-cite key="Hose22"></dt-cite> now
+        </p>
+    </div>
+
+    <p>
+        We now understand why uncertainty matters, let's explore three main "languages" for describing uncertainty:
+    </p>
+
+    <p>
+        <strong>Sets and intervals</strong> are the familiar approach from high school physics where uncertainty is binary: a value either is or isn't in the set.
+        While intuitive, this approach lacks nuance.
+    </p>
+    <p>
+        At the other end of the spectrum lies <strong>probability theory</strong>, the widely accepted framework for handling uncertainty.
+    </p>
+    <p> 
+        However, there exists a rich middle ground: <strong>imprecise probabilities</strong>.
+        These emerge when an interval is too crude while a single probability distribution is too specific (represents more knowledge than we actually have).
+        Several theories for the description of imprecise probabilities exist:
+    </p>
+
+    <ul>
+        <li>Credal sets</li>
+        <li>Coherent lower and upper previsions <dt-cite key="Troffaes05"></dt-cite></li>
+        <li>Dempster-Shafer theory / evidence theory / random set theory<dt-cite key="FersonEtAl03"></dt-cite></li>
+        <li>P-box theory <dt-cite key="FersonEtAl03"></dt-cite></li>
+        <li>Possibility theory <dt-cite key="HoseHanss21"></dt-cite></li>
+    </ul>
+    
+    <p>
+        It can be said that the listed theories are of decreasing generality, i.e. able to describe uncertainty in decreasing detail.
+        However, with decreasing generality, the theories generally become conceptually and computationally easier to handle. 
+    </p>
+
+    <!-- <p>
+        Imprecise probabilities circumvent certain paradoxes of probability theory, for example in satellite conjunction analysis, as discussed in <dt-cite key="BalchMartinFerson19"></dt-cite>, where events are assigned high degrees of belief, irrespective of their truth.
+    </p> -->
+
+
+    <h2>Possibility Theory</h2>
+    <p>
+        Interpreted in the context of imprecise probabilities, possibility theory is one of the most inflexible imprecise probabilities.
+        Its main advantage is its concise mathematical description and pleasant computational properties.
+        And is--as will be argued in the following--specific enough to be useful in a wide range of applications.
+    </p>
+
+    <h3>Discrete Possibility Distributions</h3>
+    <p>
+        Let $A$ be the event of rain tomorrow.
+        The axioms of probability theory require us to assign a probability $\text{P}(A)$ to this event, simultaneously assigning $\text{P}(\neg A) = 1 - \text{P}(A)$ to the complementary event $\neg A$ of no rain.
+    </p>
+    <p>
+        It is easy to argue that the probability $\text{P}(A)$ might not necessarily be known precisely.
+        Different weather models provide different probabilities, and even the most sophisticated models leave many dynamics and effects unmodeled.
+        Imprecise probabilities allow us to relax the requirement of a single precise probability for an event.
+        In other words, with possibility theory, we can express multiple equally viable probability assignments for the event $A$ at once.
+        These probabilities form a so-called credal set.
+    </p>
+    <p>
+        The following interactive example illustrates this for three different weather models.
+        Note how the set of probability assignments is enclosed between an upper and a lower bound.
+    </p>
+    
+    <div id="controls-area" class="l-body">
+        <!-- Sliders will be created by discrete.js using noUiSlider -->
+    </div>
+    
+    <div id="discrete-chart" class="l-body">
+        <!-- D3.js chart will be appended here by discrete.js -->
+    </div>
+
+    <p>
+        Possibility theory bounds probability by means of two measures: the <em>possibility</em> $\Pi$ and the <em>necessity</em> $\text{N}$, which provide upper and lower bounds on the credal set of probabilities by the so-called consistency principle
+        $$\text{N}(A) \leq \text{P}(A) \leq \Pi(A).$$
+        When playing around with the sliders above, you can observe a peculiarity of these two measures.
+        The relation between the two measures is given by
+        $$\Pi(A) = 1 - \text{N}(\neg A).$$
+        This means that whenever $\text{N}(A) > 0$, it follows that $\Pi(A) = 1$.
+        And similarly, if $\Pi(A) < 1$, it follows that $\text{N}(A) = 0$.
+    </p>
+
+    <p>
+        As a side effect of this interdependence, a possibility distribution $\pi$ can be used to define both measures at the same time.
+        That is,
+        $$\Pi(A) = \sup_{a \in A} \pi(a)$$
+        and
+        $$\text{N}(A) = \inf_{a \notin A} 1 - \pi(a).$$
+        This convenient property of possibility distributions allows us to work with a single function $\pi$ that captures both an upper and a lower bound on the credal set of probabilities.
+    </p>
+    <p>
+      A look at the continuous case further illustrates this property.
+    </p>
+
+    <h3>Continuous Possibility Distributions</h3>
+    <p>
+        In the following interactive example, we have a probability density function <svg width="30" height="14" style="display:inline-block; vertical-align:middle;"><path d="M 1,13 Q 8,1 15,1 Q 22,1 29,13" stroke="black" stroke-width="1.5" fill="none"/></svg> and a possibility distribution $\pi=$ <svg width="30" height="14" style="display:inline-block; vertical-align:middle;"><path d="M 1,13 L 15,1 L 29,13" stroke="rgba(255, 127, 80, 1)" stroke-width="1.5" fill="none"/></svg>.
+        While the probability of an event $A$ is calculated by integrating the probability density function (pdf) over the event (measuring the area under the curve), the possibility and necessity of an event are calculated by applying the supremum and infimum operators, respectively.
+    </p>
+    <div id="continuous-chart" class="l-body">
+        <!-- D3.js chart will be appended here by continuous.js -->
+    </div>
+    <p>
+      Notice how the consistency principle $\text{N}(A) \leq \text{P}(A) \leq \Pi(A)$ is satisfied at all times.
+      This is due to the choice of the possibility distribution $\pi$, which explicitly was made to include the pdf in the upper plot section via a transformation procedure.
+      Probability-to-possibility transformations are not unique. 
+      There are other choices of $\pi$ that would also include the pdf.
+      And due to the conservative nature of possibility theory, there are also many more pdf's included in the credal set defined by $\pi$.
+    </p>
+
+    <div class="task-box">
+        <p>
+            <strong>Task:</strong> How can you adjust the bounds in the example to make $\text{N}(A) = \text{P}(A)$?
+            <details>
+                <summary>Answer</summary>
+                The possibility distribution must have the same values at the interval edges. That is, symmetric around the peak here.
+                This is due to how the possibility distribution $\pi$ was constructed with the <dt-cite key="DuboisEtAl04">optimal transform</dt-cite>.
+            </details>
+        </p>
+    </div>
+
+    <div class="task-box">
+        <p>
+            <strong>Task:</strong> How would the orange curve and the interval have to look like if $\text{P}(A)$ should equal $\Pi(A)$?
+            <details>
+                <summary>Answer</summary>
+                The interval would have to be one-sided, i.e., the interval would have to start at the very left edge or end at the very right edge of the possibility distribution.
+                The possibility distribution would be monotonically decreasing or increasing, respectively.
+            </details>
+        </p>
+    </div>
+
+    <h3>Defining $\pi$</h3>
+    <p>
+      Now we got to know the central object of possibility theory, the possibility distribution $\pi$.
+      It
+      <ul>
+        <li>maps to values between 0 and 1,</li>
+        <li>is usually unimodal (has a single peak),</li>
+        <li>and can be one-dimensional or higher-dimensional.</li>
+      </ul>
+    </p>
+
+      <p>
+      We also saw that $\pi$ can be used to <strong>bound one or a set of probability distributions</strong>.
+      But there are other types of information / other types of uncertainty that a possibility distribution can describe.
+    <ul>
+        <li><strong>Interval information</strong>, such as "the length of this part is guaranteed to be between X and Y"</li>
+        <li><strong>Expert opinion</strong>, such as "I am 90% sure that the value is not smaller than Z"</li>
+        <li><strong>Orderings</strong>, such as "A is more likely than B and B is more likely than C"</li>
+    </ul>
+    </p>
+    
+    <h3>Forward Propagation of Possibility Distributions and Consistency Preservation</h3>
+    <p>
+        Now that we have understood that the possibility distribution $\pi$ is sufficient for bounding a set of probabilities and how to construct it, we perform all further calculations with this function.
+        Forward propagation according to a function $f$ is executed by means of the extension principle.
+        $$
+        \pi_Y(y) = \sup_{y = f(x)} \pi_X(x)
+        $$
+        For the mapping $y = f(x) = \sqrt{|x-2.5|}$, a sampling-based application of the extension principle is shown below.
+    </p>
+    <div id="forward-chart" class="l-body">
+        <!-- D3.js chart will be appended here by forward.js -->
+    </div>
+    <p>
+      It doesn't matter how we sample.
+    </p>
+
+    <h3>Interpretation of Results</h3>
+
+    <h2>Example Applications</h2>
+
+    <h2>Possibilistic Calculus: Numerical Considerations</h2>
+
+</dt-article>
+
+<dt-appendix>
+    <h3>Acknowledgments</h3>
+    <p>Thanks to Distill for this great web framework.</p>
+</dt-appendix>
+
+<script type="text/bibliography">
+  @book{Hose22,
+    title={Possibilistic Reasoning with Imprecise Probabilities: Statistical Inference and Dynamic Filtering},
+    author={Hose, Dominik},
+    year={2022},
+    series={University of Stuttgart},
+    number={74},
+    publisher={Shaker Verlag},
+    location={Düren},
+    url={https://dominikhose.github.io/dissertation/diss_dhose.pdf}
+  },
+  @thesis{Troffaes05,
+    title = {Optimality, Uncertainty, and Dynamic Programming with Lower Previsions},
+    author = {Troffaes, Matthias},
+    year = {2005},
+    institution = {Ghent University},
+    url={https://biblio.ugent.be/publication/472265/file/1877030.pdf}
+  },
+  @article{BalchMartinFerson19,
+    title = {Satellite Conjunction Analysis and the False Confidence Theorem},
+    author = {Balch, Michael Scott and Martin, Ryan and Ferson, Scott},
+    date = {2019},
+    journaltitle = {Proceedings of the Royal Society A},
+    volume = {475},
+    number = {2227},
+    pages = {20180565},
+    publisher = {The Royal Society Publishing},
+    url = {http://dx.doi.org/10.1098/rspa.2018.0565}
+  },
+  @article{HoseHanss21,
+    title = {A Universal Approach to Imprecise Probabilities in Possibility Theory},
+    author = {Hose, Dominik and Hanss, Michael},
+    year = {2021},
+    journal = {International Journal of Approximate Reasoning},
+    volume = {133},
+    pages = {133--158},
+    publisher = {Elsevier},
+    doi = {10.1016/j.ijar.2021.03.010}
+  },
+  @techreport{FersonEtAl03,
+  title = {Constructing Probability Boxes and Dempster-Shafer Structures},
+  author = {Ferson, Scott and Kreinovich, Vladik and Grinzburg, Lev and Myers, Davis and Sentz, Kari},
+  year = {2003},
+  institution = {Sandia National Lab.(SNL-NM), Albuquerque, NM (United States)},
+  url={https://www.researchgate.net/profile/Scott-Ferson/publication/2898381_Constructing_Probability_Boxes_and_Dempster-Shafer_Structures/links/0deec531998e9cc8c0000000/Constructing-Probability-Boxes-and-Dempster-Shafer-Structures.pdf}
+  },
+  @article{DuboisEtAl04,
+  title = {Probability-Possibility Transformations, Triangular Fuzzy Sets, and Probabilistic Inequalities},
+  author = {Dubois, Didier and Foulloy, Laurent and Mauris, Gilles and Prade, Henri},
+  year = {2004},
+  journal = {Reliable computing},
+  volume = {10},
+  number = {4},
+  pages = {273--297},
+  publisher = {Springer},
+  doi = {10.1023/B:REOM.0000032115.22510.b5}
+}
+
+
+
+
+</script>
+
+<!-- Graphics Libraries & Scripts -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="visualization.js"></script>
+<script src="discrete.js"></script>
+<script src="continuous.js"></script>
+<script src="probability-slider.js"></script>
+<script src="forward.js"></script>
