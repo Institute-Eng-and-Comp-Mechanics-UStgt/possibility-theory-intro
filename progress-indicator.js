@@ -36,6 +36,9 @@
 
         // Populate section list
         const sectionList = sectionNav.querySelector('.section-list');
+        const sectionTitle = sectionNav.querySelector('.section-title');
+        const sectionItems = [];
+
         sections.forEach((section, index) => {
             const item = document.createElement('div');
             item.className = 'section-item';
@@ -44,19 +47,40 @@
 
             // Click to scroll to section
             item.addEventListener('click', () => {
-                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                const sectionTop = section.offsetTop;
+                const offsetPosition = sectionTop - (window.innerHeight / 3);
+
+                // Immediately update the active section
+                currentSectionIndex = index;
+                sectionTitle.textContent = section.textContent;
+                sectionItems.forEach((item, i) => {
+                    item.classList.toggle('active', i === index);
+                });
+
+                // Prevent scroll handler from overriding during smooth scroll
+                isScrollingProgrammatically = true;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+
+                // Re-enable scroll detection after animation completes
+                setTimeout(() => {
+                    isScrollingProgrammatically = false;
+                }, 1000);
             });
 
+            sectionItems.push(item);
             sectionList.appendChild(item);
         });
 
         // Track scroll position
         const progressBar = progressIndicator.querySelector('.progress-bar');
-        const sectionTitle = sectionNav.querySelector('.section-title');
-        const sectionItems = sectionNav.querySelectorAll('.section-item');
 
         let currentSectionIndex = -1;
         let scrollTimeout;
+        let isScrollingProgrammatically = false;
 
         function updateProgress() {
             // Calculate overall scroll progress
@@ -81,8 +105,8 @@
                 }
             }
 
-            // Update section navigation
-            if (newSectionIndex !== currentSectionIndex && newSectionIndex >= 0) {
+            // Update section navigation (skip if programmatically scrolling)
+            if (!isScrollingProgrammatically && newSectionIndex !== currentSectionIndex && newSectionIndex >= 0) {
                 currentSectionIndex = newSectionIndex;
                 sectionTitle.textContent = sections[newSectionIndex].textContent;
 

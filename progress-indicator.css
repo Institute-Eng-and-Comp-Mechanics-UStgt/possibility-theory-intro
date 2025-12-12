@@ -32,6 +32,7 @@
     transform: translateX(20px);
     transition: opacity 0.3s ease, transform 0.3s ease;
     pointer-events: none;
+    overflow: hidden;
 }
 
 .section-nav.visible {
@@ -57,9 +58,20 @@
 }
 
 .section-nav .section-list {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease, padding-top 0.3s ease, margin-top 0.3s ease;
+}
+
+.section-nav:hover .section-list {
+    max-height: 400px;
+    opacity: 1;
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .section-nav .section-item {
