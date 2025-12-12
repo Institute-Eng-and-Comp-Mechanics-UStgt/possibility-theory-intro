@@ -241,6 +241,41 @@
     </p>
 
     <h3>Marginal and Joint Distributions</h3>
+
+    <p>
+        Given two imprecise variables $X$ and $Y$ with possibility distributions $\pi_X$ and $\pi_Y$, respectively, the <strong>joint possibility distribution</strong> $\pi_{X,Y}$ is obtained by a possibility-correcting copula $\mathcal{J}$.
+        So, for two variables, we have
+        $$\pi_{X,Y}(x,y) = \mathcal{J}(\pi_X(x), \pi_Y(y)).$$
+        The choice of operator depends on the assumed dependence between the two variables.
+        The two important cases are<br>
+        independence
+        $$\mathcal{J}_\text{independence}(\pi_1, \dots, \pi_n) = 1 - (1 - \min(\pi_1, \dots, \pi_n))^n$$
+        
+        and--more conservative--unknown dependence
+        $$\mathcal{J}_\text{unknown}(\pi_1, \dots, \pi_n) = \min(1, n \cdot \min(\pi_1, \dots, \pi_n)).$$
+
+        The following interactive visualization demonstrates these concepts. Drag the vertices of the triangular distributions to adjust the input marginals, and toggle between copulas to see their effect on the joint distribution and extracted marginals.
+    </p>
+    <p>
+        <strong>Marginalization</strong> is essentially a forward propagation.
+        Given a joint possibility distribution $\pi_{X,Y}$, the marginals $\pi_X$ and $\pi_Y$ can be obtained by applying the supremum operator over the other variable.
+        $$\pi_X(x) = \sup_y \pi_{X,Y}(x,y)$$
+        $$\pi_Y(y) = \sup_x \pi_{X,Y}(x,y)$$
+        
+        Notice how the extracted output marginals (right and bottom, in blue) may differ from the input marginals (top and left, in orange) depending on the copula choice. The dashed gray overlay shows the original input distribution for comparison.
+    </p>
+    
+    <div id="marginal-chart" class="l-body">
+        <!-- D3.js chart will be appended here by marginal.js -->
+    </div>
+
+    <div class="task-box">
+        <p>
+            <strong>Task:</strong> Explore the effect of the copula choice on the joint distribution and the extracted marginals.
+        </p>
+    </div>
+
+
     <h3>Conditionals</h3>
     <div class="under-construction l-body-outset">
         <span class="icon">🚧</span>
@@ -357,4 +392,5 @@
 <script src="discrete.js"></script>
 <script src="continuous.js"></script>
 <script src="forward.js"></script>
+<script src="marginal.js"></script>
 <script src="progress-indicator.js"></script>
