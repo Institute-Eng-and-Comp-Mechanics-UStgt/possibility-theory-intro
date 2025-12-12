@@ -127,3 +127,28 @@ dt-article > .task-box {
   font-size: 0.95em;
   line-height: 1.5;
 }
+
+/* Under Construction Indicator */
+.under-construction {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 24px;
+  margin: 24px 0;
+  background: rgba(255, 193, 7, 0.08);
+  border-left: 3px solid rgba(255, 193, 7, 0.6);
+  border-radius: 4px;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+  font-style: italic;
+}
+
+.under-construction .icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  font-style: normal;
+}
+
+.under-construction span:not(.icon) {
+  font-family: -apple-system, BlinkMacSystemFont, "Roboto", Helvetica, sans-serif;
+}
