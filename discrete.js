@@ -72,20 +72,18 @@ document.addEventListener('DOMContentLoaded', function () {
         .call(d3.axisBottom(xScale))
         .selectAll("text")
         .style("font-size", axisTickFontSize)
-        .style("font-family", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif");
 
     // Y-Axis
     svg.append("g")
         .call(d3.axisLeft(yScale).ticks(10).tickFormat(d3.format(".1f")))
         .selectAll("text")
         .style("font-size", axisTickFontSize)
-        .style("font-family", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif");
 
     // Y-Axis Label (KaTeX rendered)
     svg.append("foreignObject")
         .attr("width", yAxisLabelFoWidth)
         .attr("height", yAxisLabelFoHeight)
-        .attr("transform", `rotate(-90) translate(${-height / 2 - yAxisLabelFoWidth / 2}, ${-margin.left + yAxisLabelFoHeight - 10})`) // Adjusted -5 to -10 for more leftward shift
+        .attr("transform", `rotate(-90) translate(${-height / 2 - yAxisLabelFoWidth / 2}, ${-margin.left + yAxisLabelFoHeight - 20})`)
         .style("pointer-events", "none")
         .append("xhtml:div")
             .attr("class", "katex-label-container")
@@ -130,7 +128,6 @@ document.addEventListener('DOMContentLoaded', function () {
             .style("pointer-events", "none")
             .style("text-anchor", "middle")
             .style("font-size", barLabelFontSize)
-            .style("font-family", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif")
             .style("fill", VisualizationConfig.COLORS.TEXT)
             .attr("x", d => xScale(d.barCat) + xScale.bandwidth() / 2)
             .attr("y", d => yScale(d.val) - 5)
@@ -197,7 +194,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     .style("pointer-events", "none")
                     .style("text-anchor", "middle")
                     .style("font-size", barLabelFontSize)
-                    .style("font-family", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif")
                     .style("fill", VisualizationConfig.COLORS.TEXT)
                     .attr("x", d => xScale(d.barCat) + xScale.bandwidth() / 2)
                     .attr("y", d => yScale(d.val) - 5)
@@ -239,7 +235,6 @@ document.addEventListener('DOMContentLoaded', function () {
     weatherModelLabels.forEach((label, i) => {
         const sliderContainer = controlsArea.append("div")
             .style("margin-bottom", "15px")
-            .style("font-family", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif");
 
         sliderContainer.append("div")
             .style("display", "flex")

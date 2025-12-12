@@ -125,7 +125,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .attr("x", xScaleLeftPlot(2))
         .attr("y", yScale(0.8))
         .attr("fill", POSSIBILITY_LINE_COLOR)
-        .style("font-family", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif")
         .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_LABEL)
         .text("π\u2093");
     
@@ -154,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .attr("x", xScaleRightPlot(1.3))
         .attr("y", yScale(0.8))
         .attr("fill", POSSIBILITY_OUTPUT_LINE_COLOR)
-        .style("font-family", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif")
         .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_LABEL)
         .style("opacity", 0)
         .text("π\u1D67");
@@ -201,7 +199,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .append("xhtml:p")
         .attr("id", "slider-tag-text")
         .style("margin", "0")
-        .style("font-family", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif")
         .style("font-size", VisualizationConfig.FONT_SIZES.ANNOTATION)
         .style("color", TEXT_COLOR)
         .text("");

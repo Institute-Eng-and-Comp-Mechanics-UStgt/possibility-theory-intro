@@ -64,25 +64,7 @@ input[type=range]::-ms-fill-upper {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; /* Consistent font */
   /* font-size is set in JS (labelFontSize), currently 12px, could be set here if static */
-}
-
-/* Force KaTeX to use sans-serif fonts in bar labels */
-.katex-label-container .katex {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
-  font: inherit !important;
-}
-
-.katex-label-container .katex * {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
-}
-
-/* General font unification for the D3 viz area */
-#controls-area label,
-#controls-area span,
-#pnp-chart-container text { /* Targets D3 axis labels, titles etc. */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 #controls-area label,

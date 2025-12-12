@@ -161,7 +161,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .style("overflow", "visible");
 
     const tableDiv = tableFo.append("xhtml:div")
-        .style("font-family", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif")
         .style("font-size", "14px")
         .style("text-align", "center")
         .style("color", COLORS.TEXT_COLOR);
@@ -187,7 +186,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .style("overflow", "visible");
     const foDiv = fo.append("xhtml:div")
         .style("padding-top", "0px")
-        .style("font-family", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;")
         .style("font-size", "14px");
     const sliderFoDiv = foDiv.append("xhtml:div").attr("id", "integral-slider-fo");
 
