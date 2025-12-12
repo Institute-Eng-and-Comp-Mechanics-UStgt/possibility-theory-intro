@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const MARGIN = VisualizationConfig.MARGIN;
 
     // Grid Resolution for 2D Heatmap
-    const GRID_SIZE = 100;                  // 100x100 = 10000 cells
+    const GRID_SIZE = 300;                  // 300x300 pixels for smooth canvas rendering
 
     // Drag Handle
     const HANDLE_RADIUS = 7;                // Visual size of handle
@@ -367,6 +367,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const centerGroup = svg.append("g")
         .attr("transform", `translate(${centerX}, ${centerY})`);
 
+    // Add canvas for heatmap (better anti-aliasing than SVG rects)
+    const canvasFO = centerGroup.append("foreignObject")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", CENTER_PLOT_SIZE)
+        .attr("height", CENTER_PLOT_SIZE)
+        .style("pointer-events", "none");
+
+    const canvas = canvasFO.append("xhtml:canvas")
+        .attr("width", GRID_SIZE)
+        .attr("height", GRID_SIZE)
+        .style("width", `${CENTER_PLOT_SIZE}px`)
+        .style("height", `${CENTER_PLOT_SIZE}px`)
+        .style("image-rendering", "auto");
+
+    const ctx = canvas.node().getContext('2d', { alpha: false });
+
     const rightGroup = svg.append("g")
         .attr("transform", `translate(${rightX}, ${rightY})`);
 
@@ -622,28 +639,29 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /**
-     * Render 2D heatmap
+     * Render 2D heatmap using canvas for better anti-aliasing
      */
     function renderHeatmap(jointData) {
-        const cellWidth = CENTER_PLOT_SIZE / GRID_SIZE;
-        const cellHeight = CENTER_PLOT_SIZE / GRID_SIZE;
+        const imageData = ctx.createImageData(GRID_SIZE, GRID_SIZE);
+        const data = imageData.data;
 
-        centerGroup.selectAll('rect.heatmap-cell')
-            .data(jointData.gridData)
-            .join(
-                enter => enter.append('rect')
-                    .attr('class', 'heatmap-cell')
-                    .attr('x', d => xScaleCenter(d.x) - cellWidth / 2)
-                    .attr('y', d => yScaleCenter(d.y) - cellHeight / 2)
-                    .attr('width', cellWidth)
-                    .attr('height', cellHeight)
-                    .attr('fill', d => colorScale(d.value))
-                    .attr('stroke', 'none'),
-                update => update
-                    .transition()
-                    .duration(VisualizationConfig.TRANSITION_DURATION)
-                    .attr('fill', d => colorScale(d.value))
-            );
+        // Fill imageData with colors from joint distribution
+        for (let j = 0; j < GRID_SIZE; j++) {
+            for (let i = 0; i < GRID_SIZE; i++) {
+                const dataIdx = j * GRID_SIZE + i;
+                const pixelIdx = (j * GRID_SIZE + i) * 4;
+
+                const value = jointData.gridData[dataIdx].value;
+                const color = d3.color(colorScale(value));
+
+                data[pixelIdx] = color.r;     // Red
+                data[pixelIdx + 1] = color.g; // Green
+                data[pixelIdx + 2] = color.b; // Blue
+                data[pixelIdx + 3] = 255;     // Alpha (fully opaque)
+            }
+        }
+
+        ctx.putImageData(imageData, 0, 0);
     }
 
     /**
@@ -817,27 +835,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /**
      * Render highlight points on the heatmap showing which (x,y) contribute to forward propagation
+     * Draw directly on canvas to avoid SVG aliasing
      */
     function renderHighlightPoints(points) {
-        const cellWidth = CENTER_PLOT_SIZE / GRID_SIZE;
-        const cellHeight = CENTER_PLOT_SIZE / GRID_SIZE;
+        const color = d3.color(COLORS.HIGHLIGHT_POINTS);
 
-        centerGroup.selectAll('rect.highlight-point')
-            .data(points)
-            .join(
-                enter => enter.append('rect')
-                    .attr('class', 'highlight-point')
-                    .attr('x', d => xScaleCenter(d.x) - cellWidth / 2)
-                    .attr('y', d => yScaleCenter(d.y) - cellHeight / 2)
-                    .attr('width', cellWidth)
-                    .attr('height', cellHeight)
-                    .attr('fill', COLORS.HIGHLIGHT_POINTS)
-                    .attr('stroke', 'none'),
-                update => update
-                    .attr('x', d => xScaleCenter(d.x) - cellWidth / 2)
-                    .attr('y', d => yScaleCenter(d.y) - cellHeight / 2),
-                exit => exit.remove()
-            );
+        // Draw each highlight point as a small square
+        points.forEach(point => {
+            const pixelX = Math.floor((point.x - triangularDistributionState.marginalX.domain[0]) /
+                (triangularDistributionState.marginalX.domain[1] - triangularDistributionState.marginalX.domain[0]) * GRID_SIZE);
+            const pixelY = Math.floor((point.y - triangularDistributionState.marginalY.domain[0]) /
+                (triangularDistributionState.marginalY.domain[1] - triangularDistributionState.marginalY.domain[0]) * GRID_SIZE);
+
+            // Draw a 3x3 square centered on the point
+            ctx.fillStyle = color;
+            ctx.fillRect(pixelX - 1, pixelY - 1, 3, 3);
+        });
     }
 
     // ============================================================================
