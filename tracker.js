@@ -1,4 +1,4 @@
-// Progress Indicator - Clean and Minimal
+// Tracker - Clean and Minimal
 (function() {
     'use strict';
 
@@ -11,10 +11,10 @@
 
     function init() {
         // Create progress bar
-        const progressIndicator = document.createElement('div');
-        progressIndicator.className = 'progress-indicator';
-        progressIndicator.innerHTML = '<div class="progress-bar"></div>';
-        document.body.insertBefore(progressIndicator, document.body.firstChild);
+        const tracker = document.createElement('div');
+        tracker.className = 'tracker';
+        tracker.innerHTML = '<div class="progress-bar"></div>';
+        document.body.insertBefore(tracker, document.body.firstChild);
 
         // Create section navigation
         const sectionNav = document.createElement('div');
@@ -76,7 +76,7 @@
         });
 
         // Track scroll position
-        const progressBar = progressIndicator.querySelector('.progress-bar');
+        const progressBar = tracker.querySelector('.progress-bar');
 
         let currentSectionIndex = -1;
         let scrollTimeout;
