@@ -31,7 +31,7 @@
 
 <dt-article>
     <h1>Possibility Theory Basics</h1>
-    <h2>Introduction to a beautiful language of uncertainty</h2>
+    <h3>Introduction to a beautiful language of uncertainty</h3>
     <dt-byline></dt-byline>
 
     <p>
@@ -40,27 +40,28 @@
 
     <p>
         The following formulation of possibility theory is in the style as it is used at the Institute of Engineering and Computational Mechanics at the University of Stuttgart.
-        This approach builds upon Professor Hanss's work in fuzzy arithmetic and incorporates notation and views from contributions from Didier Dubois, Henry Prade, and more recently, Ryan Martin, Scott Ferson and Michael Balch.
+        This approach builds upon Professor Hanss's work in fuzzy arithmetic and incorporates notation and views of contributions from Didier Dubois, Henry Prade, and more recently, Ryan Martin, Scott Ferson and Michael Balch.
         We are an institute located in computational mechanics, so we adopt a primarily applied and numerical perspective on the subject.
         Let's establish the theoretical foundations.
     </p>
 
     <div class="task-box">
         <p>
-            <strong>Task:</strong> Read Chapter 1 (excluding 1.4) of Dominik's Dissertation <dt-cite key="Hose22"></dt-cite> now
+            <strong>Task:</strong> Read chapter 1 (excluding 1.4) of Dominik's dissertation <dt-cite key="Hose22"></dt-cite> now
         </p>
     </div>
 
     <p>
-        We now understand why uncertainty matters, let's explore three main "languages" for describing uncertainty:
+        We now understand why uncertainty matters.
+        And that there are three main "languages" for describing uncertainty:
     </p>
 
     <p>
-        <strong>Sets and intervals</strong> are the familiar approach from high school physics where uncertainty is binary: a value either is or isn't in the set.
+        <strong>Sets and intervals</strong> are the familiar approach from high school physics where uncertainty is binary: a value either is or isn't viable.
         While intuitive, this approach lacks nuance.
     </p>
     <p>
-        At the other end of the spectrum lies <strong>probability theory</strong>, the widely accepted framework for handling uncertainty.
+        At the other end of the spectrum lies <strong>probability theory</strong>, the widely accepted framework for handling uncertainty: all states of knowledge can be cast into a single probability distribution that assigns frequencies or degrees of belief to events.
     </p>
     <p> 
         However, there exists a rich middle ground: <strong>imprecise probabilities</strong>.
@@ -78,7 +79,7 @@
     
     <p>
         It can be said that the listed theories are of decreasing generality, i.e. able to describe uncertainty in decreasing detail.
-        However, with decreasing generality, the theories generally become conceptually and computationally easier to handle. 
+        However, with decreasing generality, the theories become conceptually and computationally easier to handle. 
     </p>
 
     <!-- <p>
@@ -96,9 +97,10 @@
     <h3>Discrete Possibility Distributions</h3>
     <p>
         Let $A$ be the event of rain tomorrow.
-        The axioms of probability theory require us to assign a probability $\text{P}(A)$ to this event, simultaneously assigning $\text{P}(\neg A) = 1 - \text{P}(A)$ to the complementary event $\neg A$ of no rain.
-    </p>
-    <p>
+        While statements like "it will rain between 0 and 20 mm tomorrow" are imaginable, interval statements to such a binary event hold no information, once the faintest possibility for both outcomes is admitted.
+        "Tomorrow it will either rain or not rain"
+    </p><p>
+        The axioms of probability theory requires the assignment of a probability $\text{P}(A)$, simultaneously assigning $\text{P}(\neg A) = 1 - \text{P}(A)$ to the complementary event $\neg A$ of no rain.
         It is easy to argue that the probability $\text{P}(A)$ might not necessarily be known precisely.
         Different weather models provide different probabilities, and even the most sophisticated models leave many dynamics and effects unmodeled.
         Imprecise probabilities allow us to relax the requirement of a single precise probability for an event.
@@ -199,27 +201,84 @@
     </ul>
     </p>
     
+    <h2>Possibilistic Imprecise Variables and Their Calculus</h2>
+    <p>
+        In probability theory, random variables are functions that map outcomes from a sample space (the real world) to numbers, making them accessible to mathematical analysis.
+        We call the possibilistic counterpart to random variables <strong>imprecise variables</strong>.
+        We write $\pi_X$ for the possibility distribution that contains our knowledge about the phenomenon that $X$ describes.
+    </p>
+
     <h3>Forward Propagation of Possibility Distributions and Consistency Preservation</h3>
     <p>
-        Now that we have understood that the possibility distribution $\pi$ is sufficient for bounding a set of probabilities and how to construct it, we perform all further calculations with this function.
+        Now that we have understood that the possibility distribution $\pi$ can bound a set of probabilities and encode other types of uncertainty, we perform all further calculations with this function.
         Forward propagation according to a function $f$ is executed by means of the extension principle.
         $$
         \pi_Y(y) = \sup_{y = f(x)} \pi_X(x)
         $$
-        For the mapping $y = f(x) = \sqrt{|x-2.5|}$, a sampling-based application of the extension principle is shown below.
+        A sampling-based application of the extension principle for the mapping $$y = f(x) = \sqrt{|x-2.5|}$$ is shown below.
     </p>
     <div id="forward-chart" class="l-body">
         <!-- D3.js chart will be appended here by forward.js -->
     </div>
     <p>
-      It doesn't matter how we sample.
+        What is remarkable about this procedure is that consistency is preserved under application of the extension principle.
+        This means, the pushforward probability distributions of the distributions that were originally included in the credal set defined by $\pi_X$ are also included in the credal set defined by $\pi_Y$.
     </p>
+    <!-- <p>
+
+    </p> -->
 
     <h3>Interpretation of Results</h3>
+    <p>
+        So we encoded knowledge in our input possibility distribution, propagated it through some function, and obtained an output possibility distribution.
+        But what does that tell us?
+
+        The output possibility distribution again bounds a set of probability distributions.
+        This means, that, for any event $B$ in the output space, we can obtain upper and lower bounds on the probability of that event by calculating $\Pi_Y(B)$ and $\text{N}_Y(B)$.
+        A common choice for $B$ are the so-called $\alpha$-cuts of the possibility distribution, i.e., intervals of the form
+        $$B = \{y \mid \pi_Y(y) \geq \alpha\}.$$
+        The level $\alpha$ of that cut gives a lower bound on the probability of the event $B$: $$\text{P}(B) \geq N(A) \geq 1 - \alpha$$.
+    </p>
+
+    <h3>Marginal and Joint Distributions</h3>
+    <h3>Conditionals</h3>
+    <div class="under-construction l-body-outset">
+        <span class="icon">🚧</span>
+        <span>Content in progress</span>
+    </div>
+
+    <h3>Information Fusion</h3>
+    <div class="under-construction l-body-outset">
+        <span class="icon">🚧</span>
+        <span>Content in progress</span>
+    </div>
+
+    <h2>Numerical Considerations</h2>
+    <div class="under-construction l-body-outset">
+        <span class="icon">🚧</span>
+        <span>Content in progress</span>
+    </div>
 
     <h2>Example Applications</h2>
+    <h3>Parameter Identification</h3>
+    <div class="under-construction l-body-outset">
+        <span class="icon">🚧</span>
+        <span>Content in progress</span>
+    </div>
 
-    <h2>Possibilistic Calculus: Numerical Considerations</h2>
+    <h3>Robot Localization</h3>
+    <div class="under-construction l-body-outset">
+        <span class="icon">🚧</span>
+        <span>Content in progress</span>
+    </div>
+
+    <h3>Dynamic Estimation of Ball Position</h3>
+    <div class="under-construction l-body-outset">
+        <span class="icon">🚧</span>
+        <span>Content in progress</span>
+    </div>
+
+
 
 </dt-article>
 
