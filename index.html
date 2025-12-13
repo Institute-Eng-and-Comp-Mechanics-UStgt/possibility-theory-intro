@@ -277,7 +277,7 @@
         $$\pi_{X,Y}(x,y) = \mathcal{J}(\pi_X(x), \pi_Y(y)).$$
         The choice of operator depends on the assumed dependence between the two variables.
         The two important cases are<br>
-        independence
+        independence <dt-cite key="DesterckeDuboisChojnacki09"></dt-cite>
         $$\mathcal{J}_\text{independence}(\pi_1, \dots, \pi_n) = 1 - (1 - \min(\pi_1, \dots, \pi_n))^n$$
         and--more conservative--unknown dependence
         $$\mathcal{J}_\text{unknown}(\pi_1, \dots, \pi_n) = \min(1, n \cdot \min(\pi_1, \dots, \pi_n)).$$
@@ -317,7 +317,7 @@
 
     <h3>Information Fusion</h3>
     <p>
-        Information fusion is the process of combining multiple sources of information about the same quantity.
+        Information fusion is the process of combining multiple sources of information about the same quantity <dt-cite key="DuboisPrade00"></dt-cite>.
         It is a vast and complicated topic in imprecise probabilities and uncertainty quantification in general.
         For now, let's only cover two basic fusion operations in possibility theory.
     </p>
@@ -370,27 +370,27 @@
 
 <script type="text/bibliography">
   @book{Hose22,
-    title={Possibilistic Reasoning with Imprecise Probabilities: Statistical Inference and Dynamic Filtering},
-    author={Hose, Dominik},
-    year={2022},
-    series={University of Stuttgart},
-    number={74},
-    publisher={Shaker Verlag},
-    location={Düren},
-    url={https://dominikhose.github.io/dissertation/diss_dhose.pdf}
+    title = {Possibilistic Reasoning with Imprecise Probabilities: Statistical Inference and Dynamic Filtering},
+    author = {Hose, Dominik},
+    year = {2022},
+    series = {University of Stuttgart},
+    number = {74},
+    publisher = {Shaker Verlag},
+    location = {Düren},
+    url = {https://dominikhose.github.io/dissertation/diss_dhose.pdf}
   },
   @thesis{Troffaes05,
     title = {Optimality, Uncertainty, and Dynamic Programming with Lower Previsions},
     author = {Troffaes, Matthias},
     year = {2005},
     institution = {Ghent University},
-    url={https://biblio.ugent.be/publication/472265/file/1877030.pdf}
+    url = {https://biblio.ugent.be/publication/472265/file/1877030.pdf}
   },
   @article{BalchMartinFerson19,
     title = {Satellite Conjunction Analysis and the False Confidence Theorem},
     author = {Balch, Michael Scott and Martin, Ryan and Ferson, Scott},
-    date = {2019},
-    journaltitle = {Proceedings of the Royal Society A},
+    year = {2019},
+    journal = {Proceedings of the Royal Society A},
     volume = {475},
     number = {2227},
     pages = {20180565},
@@ -408,23 +408,43 @@
     doi = {10.1016/j.ijar.2021.03.010}
   },
   @techreport{FersonEtAl03,
-  title = {Constructing Probability Boxes and Dempster-Shafer Structures},
-  author = {Ferson, Scott and Kreinovich, Vladik and Grinzburg, Lev and Myers, Davis and Sentz, Kari},
-  year = {2003},
-  institution = {Sandia National Lab.(SNL-NM), Albuquerque, NM (United States)},
-  url={https://www.researchgate.net/profile/Scott-Ferson/publication/2898381_Constructing_Probability_Boxes_and_Dempster-Shafer_Structures/links/0deec531998e9cc8c0000000/Constructing-Probability-Boxes-and-Dempster-Shafer-Structures.pdf}
+    title = {Constructing Probability Boxes and Dempster-Shafer Structures},
+    author = {Ferson, Scott and Kreinovich, Vladik and Grinzburg, Lev and Myers, Davis and Sentz, Kari},
+    year = {2003},
+    institution = {Sandia National Lab.(SNL-NM), Albuquerque, NM (United States)},
+    url = {https://www.researchgate.net/profile/Scott-Ferson/publication/2898381_Constructing_Probability_Boxes_and_Dempster-Shafer_Structures/links/0deec531998e9cc8c0000000/Constructing-Probability-Boxes-and-Dempster-Shafer-Structures.pdf}
   },
   @article{DuboisEtAl04,
-  title = {Probability-Possibility Transformations, Triangular Fuzzy Sets, and Probabilistic Inequalities},
-  author = {Dubois, Didier and Foulloy, Laurent and Mauris, Gilles and Prade, Henri},
-  year = {2004},
-  journal = {Reliable computing},
-  volume = {10},
-  number = {4},
-  pages = {273--297},
-  publisher = {Springer},
-  doi = {10.1023/B:REOM.0000032115.22510.b5}
-}
+    title = {Probability-Possibility Transformations, Triangular Fuzzy Sets, and Probabilistic Inequalities},
+    author = {Dubois, Didier and Foulloy, Laurent and Mauris, Gilles and Prade, Henri},
+    year = {2004},
+    journal = {Reliable Computing},
+    volume = {10},
+    number = {4},
+    pages = {273--297},
+    publisher = {Springer},
+    doi = {10.1023/B:REOM.0000032115.22510.b5}
+  },
+  @article{DesterckeDuboisChojnacki09,
+    title = {A Consonant Approximation of the Product of Independent Consonant Random Sets},
+    author = {Destercke, S. and Dubois, D. and Chojnacki, E.},
+    year = {2009},
+    journal = {International Journal of Uncertainty, Fuzziness and Knowledge-Based Systems},
+    volume = {17},
+    number = {06},
+    pages = {773--792},
+    publisher = {World Scientific},
+    doi = {10.1142/S0218488509006261}
+  },
+  @inproceedings{DuboisPrade00,
+    title = {Possibility Theory in Information Fusion},
+    author = {Dubois, D. and Prade, H.},
+    year = {2000},
+    booktitle = {Proceedings of the Third International Conference on Information Fusion},
+    volume = {1},
+    pages = {6--19},
+    doi = {10.1109/IFIC.2000.862412}
+  }
 
 
 
