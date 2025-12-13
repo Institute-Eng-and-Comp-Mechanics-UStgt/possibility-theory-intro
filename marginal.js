@@ -39,8 +39,11 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     // Total SVG Dimensions
+    const TOGGLE_WIDTH = 250;
+    const TOGGLE_SPACING = 20;
     const TOTAL_WIDTH = MARGIN.left + SIDE_PLOT_WIDTH + PLOT_SPACING +
-                        CENTER_PLOT_SIZE + PLOT_SPACING + SIDE_PLOT_WIDTH + MARGIN.right;
+                        CENTER_PLOT_SIZE + PLOT_SPACING + SIDE_PLOT_WIDTH +
+                        TOGGLE_SPACING + TOGGLE_WIDTH + MARGIN.right;
     const TOTAL_HEIGHT = MARGIN.top + SELECTOR_HEIGHT + SELECTOR_SPACING +
                          TOP_BOTTOM_HEIGHT + PLOT_SPACING + CENTER_PLOT_SIZE +
                          PLOT_SPACING + TOP_BOTTOM_HEIGHT + FORWARD_PLOT_SPACING +
@@ -54,16 +57,20 @@ document.addEventListener('DOMContentLoaded', function () {
         marginalX: {
             domain: [2, 4],
             leftBase: 2.3,
+            leftMid: { x: 2.6, y: 0.5 },   // X and Y now draggable
             peak: 3.0,
+            rightMid: { x: 3.4, y: 0.5 },  // X and Y now draggable
             rightBase: 3.7,
-            numPoints: 101
+            numPoints: 101,
+            handleCount: 5  // 5 handles for top plot
         },
         marginalY: {
             domain: [3, 5],
             leftBase: 3.4,
             peak: 4.0,
             rightBase: 4.6,
-            numPoints: 101
+            numPoints: 101,
+            handleCount: 3  // 3 handles for left plot (simple triangle)
         }
     };
 
@@ -71,24 +78,53 @@ document.addEventListener('DOMContentLoaded', function () {
         selected: 'independence', // 'independence' or 'unknown'
     };
 
+    const visualizationState = {
+        showGreenMarkings: true, // Toggle for green highlight points
+    };
+
     // ============================================================================
     // MATHEMATICAL HELPER FUNCTIONS
     // ============================================================================
 
     /**
-     * Triangular possibility distribution
-     * Returns 0 outside [leftBase, rightBase], linearly interpolates to peak (1)
+     * Piecewise linear possibility distribution with 3 or 5 control points
+     * Returns 0 outside [leftBase, rightBase], linear interpolation between points
      */
-    function triangularPossibility(x, leftBase, peak, rightBase) {
+    function piecewiseLinearPossibility(x, leftBase, leftMid, peak, rightMid, rightBase) {
         if (x <= leftBase || x >= rightBase) {
             return 0;
-        } else if (x < peak) {
-            // Linear interpolation from leftBase (0) to peak (1)
-            return (x - leftBase) / (peak - leftBase);
-        } else {
-            // Linear interpolation from peak (1) to rightBase (0)
-            return (rightBase - x) / (rightBase - peak);
         }
+
+        // Define control points: (x, y)
+        let points;
+        if (leftMid === null || rightMid === null) {
+            // Simple triangle (3 points)
+            points = [
+                { x: leftBase, y: 0 },
+                { x: peak, y: 1 },
+                { x: rightBase, y: 0 }
+            ];
+        } else {
+            // 5-point piecewise linear
+            points = [
+                { x: leftBase, y: 0 },
+                { x: leftMid.x, y: leftMid.y },
+                { x: peak, y: 1 },
+                { x: rightMid.x, y: rightMid.y },
+                { x: rightBase, y: 0 }
+            ];
+        }
+
+        // Find which segment we're in
+        for (let i = 0; i < points.length - 1; i++) {
+            if (x >= points[i].x && x <= points[i + 1].x) {
+                // Linear interpolation between points[i] and points[i+1]
+                const t = (x - points[i].x) / (points[i + 1].x - points[i].x);
+                return points[i].y + t * (points[i + 1].y - points[i].y);
+            }
+        }
+
+        return 0;
     }
 
     /**
@@ -116,14 +152,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /**
-     * Generate data for triangular distribution line
+     * Generate data for piecewise linear distribution line
      */
     function generateTriangularData(config) {
         const data = [];
         const step = (config.domain[1] - config.domain[0]) / (config.numPoints - 1);
         for (let i = 0; i < config.numPoints; i++) {
             const x = config.domain[0] + i * step;
-            const y = triangularPossibility(x, config.leftBase, config.peak, config.rightBase);
+            const leftMid = config.leftMid || null;
+            const rightMid = config.rightMid || null;
+            const y = piecewiseLinearPossibility(x, config.leftBase, leftMid, config.peak, rightMid, config.rightBase);
             data.push({ x, y });
         }
         return data;
@@ -159,8 +197,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const x = xValues[i];
                 const y = yValues[j];
 
-                const piX = triangularPossibility(x, xConfig.leftBase, xConfig.peak, xConfig.rightBase);
-                const piY = triangularPossibility(y, yConfig.leftBase, yConfig.peak, yConfig.rightBase);
+                const piX = piecewiseLinearPossibility(x, xConfig.leftBase, xConfig.leftMid || null, xConfig.peak, xConfig.rightMid || null, xConfig.rightBase);
+                const piY = piecewiseLinearPossibility(y, yConfig.leftBase, yConfig.leftMid || null, yConfig.peak, yConfig.rightMid || null, yConfig.rightBase);
 
                 const jointValue = copulaFunc(piX, piY);
 
@@ -479,7 +517,8 @@ document.addEventListener('DOMContentLoaded', function () {
         topGroup.append("g")
             .attr("class", "x-axis-top")
             .attr("transform", `translate(0, ${TOP_BOTTOM_HEIGHT})`)
-            .style("display", "none"); // Hide x-axis
+            .call(d3.axisBottom(xScaleTop).ticks(5).tickFormat(d => Number.isInteger(d) ? d : d.toFixed(1)))
+            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_TICK);
 
         topGroup.append("g")
             .attr("class", "y-axis-top")
@@ -491,11 +530,22 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("class", "x-axis-left")
             .attr("transform", `translate(0, 0)`)
             .call(d3.axisTop(xScaleLeft).tickValues([0, 1]))
-            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_TICK);
+            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_TICK)
+            .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("transform", "rotate(90)")
+            .attr("dx", "-0.7em")
+            .attr("dy", "1em");
 
         leftGroup.append("g")
             .attr("class", "y-axis-left")
-            .style("display", "none"); // Hide y-axis
+            .call(d3.axisLeft(yScaleLeft).ticks(5).tickFormat(d => Number.isInteger(d) ? d : d.toFixed(1)))
+            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_TICK)
+            .selectAll("text")
+            .style("text-anchor", "middle")
+            .attr("transform", "rotate(90)")
+            .attr("dx", "0.7em")
+            .attr("dy", "1.5em");
 
         // Center plot axes (flipped y-axis)
         centerGroup.append("g")
@@ -508,39 +558,34 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("transform", `translate(0, 0)`)
             .style("display", "none"); // Hide y-axis
 
-        centerGroup.append("text")
-            .attr("class", "axis-label")
-            .attr("x", CENTER_PLOT_SIZE / 2)
-            .attr("y", CENTER_PLOT_SIZE + 35)
-            .attr("text-anchor", "middle")
-            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_LABEL)
-            .text("x");
-
-        centerGroup.append("text")
-            .attr("class", "axis-label")
-            .attr("x", -CENTER_PLOT_SIZE / 2)
-            .attr("y", -45)
-            .attr("text-anchor", "middle")
-            .attr("transform", `rotate(-90, ${-CENTER_PLOT_SIZE / 2}, -45)`)
-            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_LABEL)
-            .text("y");
-
         // Right plot axes (flipped to match left)
         rightGroup.append("g")
             .attr("class", "x-axis-right")
             .attr("transform", `translate(0, 0)`)
             .call(d3.axisTop(xScaleRight).tickValues([0, 1]))
-            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_TICK);
+            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_TICK)
+            .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("transform", "rotate(90)")
+            .attr("dx", "-0.7em")
+            .attr("dy", "1em");
 
         rightGroup.append("g")
             .attr("class", "y-axis-right")
-            .style("display", "none"); // Hide y-axis
+            .call(d3.axisLeft(yScaleRight).ticks(5).tickFormat(d => Number.isInteger(d) ? d : d.toFixed(1)))
+            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_TICK)
+            .selectAll("text")
+            .style("text-anchor", "middle")
+            .attr("transform", "rotate(90)")
+            .attr("dx", "0.7em")
+            .attr("dy", "1.5em");
 
         // Bottom plot axes
         bottomGroup.append("g")
             .attr("class", "x-axis-bottom")
             .attr("transform", `translate(0, ${TOP_BOTTOM_HEIGHT})`)
-            .style("display", "none"); // Hide x-axis
+            .call(d3.axisBottom(xScaleBottom).ticks(5).tickFormat(d => Number.isInteger(d) ? d : d.toFixed(1)))
+            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_TICK);
 
         bottomGroup.append("g")
             .attr("class", "y-axis-bottom")
@@ -551,7 +596,7 @@ document.addEventListener('DOMContentLoaded', function () {
         forwardGroup.append("g")
             .attr("class", "x-axis-forward")
             .attr("transform", `translate(0, ${FORWARD_PLOT_HEIGHT})`)
-            .call(d3.axisBottom(xScaleForward).ticks(5))
+            .call(d3.axisBottom(xScaleForward).ticks(5).tickFormat(d => Number.isInteger(d) ? d : d.toFixed(1)))
             .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_TICK);
 
         forwardGroup.append("g")
@@ -566,6 +611,128 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("text-anchor", "middle")
             .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_LABEL)
             .text("z = x + y");
+    }
+
+    // ============================================================================
+    // SECTION LABELS
+    // ============================================================================
+
+    function createSectionLabels() {
+        // "INPUTS" label in top left (orange)
+        svg.append("text")
+            .attr("x", leftX + SIDE_PLOT_WIDTH / 2)
+            .attr("y", topY + 65)
+            .attr("text-anchor", "middle")
+            .style("font-size", "18px")
+            .style("font-weight", "bold")
+            .style("fill", COLORS.INPUT_MARGINAL)
+            .text("INPUTS");
+
+        // "MARGINALS OF JOINT SPACE" label in bottom right (blue)
+        svg.append("text")
+            .attr("x", rightX + SIDE_PLOT_WIDTH / 2 + 10)
+            .attr("y", bottomY + TOP_BOTTOM_HEIGHT - 60)
+            .attr("text-anchor", "middle")
+            .style("font-size", "18px")
+            .style("font-weight", "bold")
+            .style("fill", COLORS.OUTPUT_MARGINAL)
+            .text("MARGINALS OF JOINT SPACE");
+
+        // "OUTPUT" label above toggle (green)
+        const toggleX = forwardX + CENTER_PLOT_SIZE + 20;
+        const toggleY = forwardY + FORWARD_PLOT_HEIGHT / 2 - 12;
+        svg.append("text")
+            .attr("x", rightX + SIDE_PLOT_WIDTH / 2 + 10)
+            .attr("y", toggleY - 15)
+            .attr("text-anchor", "middle")
+            .style("font-size", "18px")
+            .style("font-weight", "bold")
+            .style("fill", COLORS.FORWARD_PROPAGATION)
+            .text("OUTPUT");
+
+        // "JOINT SPACE" label on top of 2D plot at the bottom (white)
+        svg.append("text")
+            .attr("x", centerX + CENTER_PLOT_SIZE / 2)
+            .attr("y", centerY + CENTER_PLOT_SIZE - 10)
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .style("font-weight", "bold")
+            .style("fill", "white")
+            .text("JOINT SPACE");
+    }
+
+    // ============================================================================
+    // GREEN MARKINGS TOGGLE
+    // ============================================================================
+
+    function createGreenMarkingsToggle() {
+        const toggleX = forwardX + CENTER_PLOT_SIZE + 20;
+        const toggleY = forwardY + FORWARD_PLOT_HEIGHT / 2 - 12;
+
+        const fo = svg.append('foreignObject')
+            .attr('x', toggleX)
+            .attr('y', toggleY)
+            .attr('width', 250)
+            .attr('height', 40);
+
+        const div = fo.append('xhtml:div')
+            .style('display', 'flex')
+            .style('align-items', 'center')
+            .style('gap', '8px')
+            .style('font-size', VisualizationConfig.FONT_SIZES.LABEL);
+
+        const toggleContainer = div.append('xhtml:label')
+            .style('position', 'relative')
+            .style('display', 'inline-block')
+            .style('width', '40px')
+            .style('height', '20px')
+            .style('cursor', 'pointer');
+
+        const checkbox = toggleContainer.append('xhtml:input')
+            .attr('type', 'checkbox')
+            .property('checked', true)
+            .style('opacity', 0)
+            .style('width', 0)
+            .style('height', 0);
+
+        const slider = toggleContainer.append('xhtml:span')
+            .style('position', 'absolute')
+            .style('cursor', 'pointer')
+            .style('top', 0)
+            .style('left', 0)
+            .style('right', 0)
+            .style('bottom', 0)
+            .style('background-color', COLORS.HIGHLIGHT_POINTS)
+            .style('border-radius', '20px')
+            .style('transition', 'background-color 0.3s');
+
+        const knob = slider.append('xhtml:span')
+            .style('position', 'absolute')
+            .style('content', '""')
+            .style('height', '14px')
+            .style('width', '14px')
+            .style('left', '3px')
+            .style('bottom', '3px')
+            .style('background-color', 'white')
+            .style('border-radius', '50%')
+            .style('transition', 'transform 0.3s')
+            .style('transform', 'translateX(20px)');
+
+        div.append('xhtml:span')
+            .text('Show points in input space')
+            .style('color', COLORS.TEXT_COLOR);
+
+        checkbox.on('change', function() {
+            visualizationState.showGreenMarkings = this.checked;
+            if (this.checked) {
+                knob.style('transform', 'translateX(20px)');
+                slider.style('background-color', COLORS.HIGHLIGHT_POINTS);
+            } else {
+                knob.style('transform', 'translateX(0px)');
+                slider.style('background-color', '#808080'); // Grey when off
+            }
+            updateVisualization();
+        });
     }
 
     // ============================================================================
@@ -665,55 +832,80 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /**
-     * Create draggable handles for triangular distribution
+     * Create draggable handles for smooth distribution
      */
     function createDraggableHandles(group, config, xScale, yScale, orientation = 'horizontal') {
-        const handles = [
-            { id: 'left', type: 'base', getX: () => config.leftBase, getY: () => 0 },
-            { id: 'peak', type: 'peak', getX: () => config.peak, getY: () => 1 },
-            { id: 'right', type: 'base', getX: () => config.rightBase, getY: () => 0 }
-        ];
+        let handles;
+        if (config.handleCount === 3) {
+            // Simple triangle: only 3 handles
+            handles = [
+                { id: 'left', type: 'base', getX: () => config.leftBase, getY: () => 0 },
+                { id: 'peak', type: 'peak', getX: () => config.peak, getY: () => 1 },
+                { id: 'right', type: 'base', getX: () => config.rightBase, getY: () => 0 }
+            ];
+        } else {
+            // 5-handle piecewise linear
+            handles = [
+                { id: 'left', type: 'base', getX: () => config.leftBase, getY: () => 0 },
+                { id: 'leftMid', type: 'mid', getX: () => config.leftMid.x, getY: () => config.leftMid.y },
+                { id: 'peak', type: 'peak', getX: () => config.peak, getY: () => 1 },
+                { id: 'rightMid', type: 'mid', getX: () => config.rightMid.x, getY: () => config.rightMid.y },
+                { id: 'right', type: 'base', getX: () => config.rightBase, getY: () => 0 }
+            ];
+        }
 
         const dragBehavior = d3.drag()
-            .on('start', function() {
-                d3.select(this).raise().attr('stroke-width', 3);
+            .on('start', function(event, d) {
+                d3.select(this).raise().attr('cursor', 'grabbing');
             })
             .on('drag', function(event, d) {
+                // Get current position of THIS handle element
+                const handle = d3.select(this);
+                let cx = parseFloat(handle.attr('cx'));
+                let cy = parseFloat(handle.attr('cy'));
+
+                // Update position by delta
+                cx += event.dx;
+                cy += event.dy;
+
                 if (orientation === 'horizontal') {
-                    const newX = xScale.invert(event.x);
-                    updateHandlePosition(d.id, newX, config);
+                    const newX = xScale.invert(cx);
+                    const newY = yScale.invert(cy);
+                    updateHandlePosition(d.id, newX, newY, config);
                 } else {
-                    const newX = yScale.invert(event.y);
-                    updateHandlePosition(d.id, newX, config);
+                    const newX = yScale.invert(cy);
+                    const newY = xScale.invert(cx);
+                    updateHandlePosition(d.id, newX, newY, config);
                 }
                 updateVisualization();
             })
-            .on('end', function() {
-                d3.select(this).attr('stroke-width', 2);
+            .on('end', function(event, d) {
+                d3.select(this).attr('cursor', 'grab');
             });
 
         const handleGroup = group.append('g').attr('class', 'handles');
 
-        // Create invisible larger hitbox circles
+        // Create invisible larger hit area circles first
         handleGroup.selectAll('circle.handle-hitbox')
             .data(handles)
             .join('circle')
             .attr('class', d => `handle-hitbox handle-hitbox-${d.id}`)
             .attr('r', HANDLE_HITBOX_RADIUS)
             .attr('fill', 'transparent')
-            .attr('cursor', 'pointer')
+            .attr('stroke', 'none')
+            .attr('cursor', 'grab')
             .call(dragBehavior);
 
-        // Create visible smaller handle circles
+        // Create visible smaller handle circles on top
         handleGroup.selectAll('circle.handle')
             .data(handles)
             .join('circle')
             .attr('class', d => `handle handle-${d.id}`)
             .attr('r', HANDLE_RADIUS)
-            .attr('fill', d => d.type === 'peak' ? COLORS.HANDLE_PEAK : COLORS.HANDLE_BASE)
+            .attr('fill', COLORS.HANDLE_BASE)
             .attr('stroke', 'white')
             .attr('stroke-width', 2)
-            .attr('pointer-events', 'none'); // Let hitbox handle events
+            .style('pointer-events', 'none');
 
         updateHandlePositions(handleGroup, handles, xScale, yScale, orientation);
     }
@@ -724,29 +916,59 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateHandlePositions(handleGroup, handles, xScale, yScale, orientation) {
         // Update hitbox positions
         handleGroup.selectAll('circle.handle-hitbox')
-            .data(handles)
-            .attr('cx', d => orientation === 'horizontal' ? xScale(d.getX()) : xScale(d.getY()))
-            .attr('cy', d => orientation === 'horizontal' ? yScale(d.getY()) : yScale(d.getX()));
+            .data(handles, d => d.id)
+            .join(
+                enter => enter,
+                update => update
+                    .attr('cx', d => orientation === 'horizontal' ? xScale(d.getX()) : xScale(d.getY()))
+                    .attr('cy', d => orientation === 'horizontal' ? yScale(d.getY()) : yScale(d.getX()))
+            );
 
         // Update visible handle positions
         handleGroup.selectAll('circle.handle')
-            .data(handles)
-            .attr('cx', d => orientation === 'horizontal' ? xScale(d.getX()) : xScale(d.getY()))
-            .attr('cy', d => orientation === 'horizontal' ? yScale(d.getY()) : yScale(d.getX()));
+            .data(handles, d => d.id)
+            .join(
+                enter => enter,
+                update => update
+                    .attr('cx', d => orientation === 'horizontal' ? xScale(d.getX()) : xScale(d.getY()))
+                    .attr('cy', d => orientation === 'horizontal' ? yScale(d.getY()) : yScale(d.getX()))
+            );
     }
 
     /**
      * Update handle position with constraints
      */
-    function updateHandlePosition(handleId, newX, config) {
-        if (handleId === 'left') {
-            config.leftBase = Math.max(config.domain[0], Math.min(config.peak - MIN_SEPARATION, newX));
-        } else if (handleId === 'peak') {
-            config.peak = Math.max(config.leftBase + MIN_SEPARATION,
-                                  Math.min(config.rightBase - MIN_SEPARATION, newX));
-        } else if (handleId === 'right') {
-            config.rightBase = Math.max(config.peak + MIN_SEPARATION,
-                                       Math.min(config.domain[1], newX));
+    function updateHandlePosition(handleId, newX, newY, config) {
+        if (config.handleCount === 3) {
+            // Simple triangle (3 handles)
+            if (handleId === 'left') {
+                config.leftBase = Math.max(config.domain[0], Math.min(config.peak - MIN_SEPARATION, newX));
+            } else if (handleId === 'peak') {
+                config.peak = Math.max(config.leftBase + MIN_SEPARATION,
+                                      Math.min(config.rightBase - MIN_SEPARATION, newX));
+            } else if (handleId === 'right') {
+                config.rightBase = Math.max(config.peak + MIN_SEPARATION,
+                                           Math.min(config.domain[1], newX));
+            }
+        } else {
+            // 5 handles piecewise linear
+            if (handleId === 'left') {
+                config.leftBase = Math.max(config.domain[0], Math.min(config.leftMid.x - MIN_SEPARATION, newX));
+            } else if (handleId === 'leftMid') {
+                config.leftMid.x = Math.max(config.leftBase + MIN_SEPARATION,
+                                           Math.min(config.peak - MIN_SEPARATION, newX));
+                config.leftMid.y = Math.max(0, Math.min(1, newY));
+            } else if (handleId === 'peak') {
+                config.peak = Math.max(config.leftMid.x + MIN_SEPARATION,
+                                      Math.min(config.rightMid.x - MIN_SEPARATION, newX));
+            } else if (handleId === 'rightMid') {
+                config.rightMid.x = Math.max(config.peak + MIN_SEPARATION,
+                                            Math.min(config.rightBase - MIN_SEPARATION, newX));
+                config.rightMid.y = Math.max(0, Math.min(1, newY));
+            } else if (handleId === 'right') {
+                config.rightBase = Math.max(config.rightMid.x + MIN_SEPARATION,
+                                           Math.min(config.domain[1], newX));
+            }
         }
     }
 
@@ -770,18 +992,28 @@ document.addEventListener('DOMContentLoaded', function () {
         renderTriangularLine(topGroup, inputDataX, xScaleTop, yScaleTop, 'horizontal');
         const topHandles = [
             { id: 'left', type: 'base', getX: () => triangularDistributionState.marginalX.leftBase, getY: () => 0 },
+            { id: 'leftMid', type: 'mid', getX: () => triangularDistributionState.marginalX.leftMid.x, getY: () => triangularDistributionState.marginalX.leftMid.y },
             { id: 'peak', type: 'peak', getX: () => triangularDistributionState.marginalX.peak, getY: () => 1 },
+            { id: 'rightMid', type: 'mid', getX: () => triangularDistributionState.marginalX.rightMid.x, getY: () => triangularDistributionState.marginalX.rightMid.y },
             { id: 'right', type: 'base', getX: () => triangularDistributionState.marginalX.rightBase, getY: () => 0 }
         ];
         updateHandlePositions(topGroup.select('g.handles'), topHandles, xScaleTop, yScaleTop, 'horizontal');
 
         // 5. Update left plot (input marginal Y)
         renderTriangularLine(leftGroup, inputDataY, xScaleLeft, yScaleLeft, 'vertical');
-        const leftHandles = [
-            { id: 'left', type: 'base', getX: () => triangularDistributionState.marginalY.leftBase, getY: () => 0 },
-            { id: 'peak', type: 'peak', getX: () => triangularDistributionState.marginalY.peak, getY: () => 1 },
-            { id: 'right', type: 'base', getX: () => triangularDistributionState.marginalY.rightBase, getY: () => 0 }
-        ];
+        const leftHandles = triangularDistributionState.marginalY.handleCount === 3
+            ? [
+                { id: 'left', type: 'base', getX: () => triangularDistributionState.marginalY.leftBase, getY: () => 0 },
+                { id: 'peak', type: 'peak', getX: () => triangularDistributionState.marginalY.peak, getY: () => 1 },
+                { id: 'right', type: 'base', getX: () => triangularDistributionState.marginalY.rightBase, getY: () => 0 }
+            ]
+            : [
+                { id: 'left', type: 'base', getX: () => triangularDistributionState.marginalY.leftBase, getY: () => 0 },
+                { id: 'leftMid', type: 'mid', getX: () => triangularDistributionState.marginalY.leftMid.x, getY: () => triangularDistributionState.marginalY.leftMid.y },
+                { id: 'peak', type: 'peak', getX: () => triangularDistributionState.marginalY.peak, getY: () => 1 },
+                { id: 'rightMid', type: 'mid', getX: () => triangularDistributionState.marginalY.rightMid.x, getY: () => triangularDistributionState.marginalY.rightMid.y },
+                { id: 'right', type: 'base', getX: () => triangularDistributionState.marginalY.rightBase, getY: () => 0 }
+            ];
         updateHandlePositions(leftGroup.select('g.handles'), leftHandles, xScaleLeft, yScaleLeft, 'vertical');
 
         // 6. Update center heatmap
@@ -838,6 +1070,11 @@ document.addEventListener('DOMContentLoaded', function () {
      * Draw directly on canvas to avoid SVG aliasing
      */
     function renderHighlightPoints(points) {
+        // Only draw if toggle is enabled
+        if (!visualizationState.showGreenMarkings) {
+            return;
+        }
+
         const color = d3.color(COLORS.HIGHLIGHT_POINTS);
 
         // Draw each highlight point as a small square
@@ -861,6 +1098,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // Create static elements
         createCopulaSelector();
         createAxes();
+        createSectionLabels();
+        createGreenMarkingsToggle();
 
         // Create draggable handles
         createDraggableHandles(topGroup, triangularDistributionState.marginalX, xScaleTop, yScaleTop, 'horizontal');
