@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const visualizationState = {
-        showGreenMarkings: true, // Toggle for green highlight points
+        showGreenMarkings: false, // Toggle for green highlight points
     };
 
     // ============================================================================
@@ -690,7 +690,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const checkbox = toggleContainer.append('xhtml:input')
             .attr('type', 'checkbox')
-            .property('checked', true)
+            .property('checked', false)
             .style('opacity', 0)
             .style('width', 0)
             .style('height', 0);
@@ -702,7 +702,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .style('left', 0)
             .style('right', 0)
             .style('bottom', 0)
-            .style('background-color', COLORS.HIGHLIGHT_POINTS)
+            .style('background-color', '#808080')
             .style('border-radius', '20px')
             .style('transition', 'background-color 0.3s');
 
@@ -716,7 +716,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .style('background-color', 'white')
             .style('border-radius', '50%')
             .style('transition', 'transform 0.3s')
-            .style('transform', 'translateX(20px)');
+            .style('transform', 'translateX(0px)');
 
         div.append('xhtml:span')
             .text('Show points in input space')
