@@ -153,17 +153,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /**
      * Generate data for piecewise linear distribution line
+     * Draws directly between control points (handles) to always show clean connection to peak
      */
     function generateTriangularData(config) {
         const data = [];
-        const step = (config.domain[1] - config.domain[0]) / (config.numPoints - 1);
-        for (let i = 0; i < config.numPoints; i++) {
-            const x = config.domain[0] + i * step;
-            const leftMid = config.leftMid || null;
-            const rightMid = config.rightMid || null;
-            const y = piecewiseLinearPossibility(x, config.leftBase, leftMid, config.peak, rightMid, config.rightBase);
-            data.push({ x, y });
+
+        if (config.handleCount === 3) {
+            // Simple triangle: just connect the 3 handles
+            data.push({ x: config.leftBase, y: 0 });
+            data.push({ x: config.peak, y: 1 });
+            data.push({ x: config.rightBase, y: 0 });
+        } else {
+            // 5 handles: connect all 5 control points
+            data.push({ x: config.leftBase, y: 0 });
+            data.push({ x: config.leftMid.x, y: config.leftMid.y });
+            data.push({ x: config.peak, y: 1 });
+            data.push({ x: config.rightMid.x, y: config.rightMid.y });
+            data.push({ x: config.rightBase, y: 0 });
         }
+
         return data;
     }
 
@@ -206,6 +214,43 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
+        // Find grid indices closest to peaks
+        let peakXIdx = 0;
+        let minXDist = Infinity;
+        for (let i = 0; i < GRID_SIZE; i++) {
+            const dist = Math.abs(xValues[i] - xConfig.peak);
+            if (dist < minXDist) {
+                minXDist = dist;
+                peakXIdx = i;
+            }
+        }
+
+        let peakYIdx = 0;
+        let minYDist = Infinity;
+        for (let j = 0; j < GRID_SIZE; j++) {
+            const dist = Math.abs(yValues[j] - yConfig.peak);
+            if (dist < minYDist) {
+                minYDist = dist;
+                peakYIdx = j;
+            }
+        }
+
+        // Force the values along the peak lines to match the other marginal exactly
+        // This ensures that when one distribution is narrow, it doesn't drag down the other
+        for (let j = 0; j < GRID_SIZE; j++) {
+            const y = yValues[j];
+            const piY = piecewiseLinearPossibility(y, yConfig.leftBase, yConfig.leftMid || null, yConfig.peak, yConfig.rightMid || null, yConfig.rightBase);
+            const dataIdx = j * GRID_SIZE + peakXIdx;
+            gridData[dataIdx].value = copulaFunc(1, piY);
+        }
+
+        for (let i = 0; i < GRID_SIZE; i++) {
+            const x = xValues[i];
+            const piX = piecewiseLinearPossibility(x, xConfig.leftBase, xConfig.leftMid || null, xConfig.peak, xConfig.rightMid || null, xConfig.rightBase);
+            const dataIdx = peakYIdx * GRID_SIZE + i;
+            gridData[dataIdx].value = copulaFunc(piX, 1);
+        }
+
         return { gridData, xValues, yValues };
     }
 
@@ -229,6 +274,19 @@ document.addEventListener('DOMContentLoaded', function () {
             marginalData.push({ x, y: maxValue });
         }
 
+        // Ensure peak is always 1 by finding grid point nearest to peak
+        const peakX = triangularDistributionState.marginalX.peak;
+        let closestIdx = 0;
+        let minDist = Infinity;
+        for (let i = 0; i < marginalData.length; i++) {
+            const dist = Math.abs(marginalData[i].x - peakX);
+            if (dist < minDist) {
+                minDist = dist;
+                closestIdx = i;
+            }
+        }
+        marginalData[closestIdx].y = 1;
+
         return marginalData;
     }
 
@@ -251,6 +309,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
             marginalData.push({ x: y, y: maxValue });
         }
+
+        // Ensure peak is always 1 by finding grid point nearest to peak
+        const peakY = triangularDistributionState.marginalY.peak;
+        let closestIdx = 0;
+        let minDist = Infinity;
+        for (let i = 0; i < marginalData.length; i++) {
+            const dist = Math.abs(marginalData[i].x - peakY);
+            if (dist < minDist) {
+                minDist = dist;
+                closestIdx = i;
+            }
+        }
+        marginalData[closestIdx].y = 1;
 
         return marginalData;
     }
