@@ -1091,6 +1091,104 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ============================================================================
+    // "DRAG ME" HINT
+    // ============================================================================
+
+    function createDragMeHint() {
+        // Store default values
+        const defaults = {
+            marginalX: {
+                leftBase: 2.3,
+                leftMid: { x: 2.6, y: 0.5 },
+                peak: 3.0,
+                rightMid: { x: 3.4, y: 0.5 },
+                rightBase: 3.7
+            },
+            marginalY: {
+                leftBase: 3.4,
+                peak: 4.0,
+                rightBase: 4.6
+            }
+        };
+
+        // Point to the leftMid handle on the top plot
+        const targetX = xScaleTop(triangularDistributionState.marginalX.leftMid.x);
+        const targetY = yScaleTop(triangularDistributionState.marginalX.leftMid.y);
+
+        const hintGroup = topGroup.append('g')
+            .attr('class', 'drag-hint')
+            .style('opacity', 1);
+
+        // Define arrow marker
+        svg.append('defs').append('marker')
+            .attr('id', 'drag-hint-arrow')
+            .attr('viewBox', '0 0 10 10')
+            .attr('refX', 5)
+            .attr('refY', 5)
+            .attr('markerWidth', 6)
+            .attr('markerHeight', 6)
+            .attr('orient', 'auto-start-reverse')
+            .append('path')
+            .attr('d', 'M 0 0 L 10 5 L 0 10 z')
+            .attr('fill', COLORS.TEXT_COLOR)
+
+        // Arrow line with marker
+        hintGroup.append('line')
+            .attr('x1', targetX - 40)
+            .attr('y1', targetY - 37)
+            .attr('x2', targetX - 16)
+            .attr('y2', targetY - 13)
+            .attr('stroke', COLORS.TEXT_COLOR)
+            .attr('stroke-width', 2)
+            .attr('marker-end', 'url(#drag-hint-arrow)')
+
+        // "Drag me" text in handwritten style
+        hintGroup.append('text')
+            .attr('x', targetX - 70)
+            .attr('y', targetY - 45)
+            .attr('text-anchor', 'start')
+            .style('font-family', '"Brush Script MT", "Comic Sans MS", cursive')
+            .style('font-size', '16px')
+            .style('font-weight', 'normal')
+            .style('fill', 'black')
+            .text('Drag me');
+
+        // Check if handles are at default positions
+        const checkIfDefault = function() {
+            const xState = triangularDistributionState.marginalX;
+            const yState = triangularDistributionState.marginalY;
+
+            const isDefault = (
+                Math.abs(xState.leftBase - defaults.marginalX.leftBase) < 0.01 &&
+                Math.abs(xState.leftMid.x - defaults.marginalX.leftMid.x) < 0.01 &&
+                Math.abs(xState.leftMid.y - defaults.marginalX.leftMid.y) < 0.01 &&
+                Math.abs(xState.peak - defaults.marginalX.peak) < 0.01 &&
+                Math.abs(xState.rightMid.x - defaults.marginalX.rightMid.x) < 0.01 &&
+                Math.abs(xState.rightMid.y - defaults.marginalX.rightMid.y) < 0.01 &&
+                Math.abs(xState.rightBase - defaults.marginalX.rightBase) < 0.01 &&
+                Math.abs(yState.leftBase - defaults.marginalY.leftBase) < 0.01 &&
+                Math.abs(yState.peak - defaults.marginalY.peak) < 0.01 &&
+                Math.abs(yState.rightBase - defaults.marginalY.rightBase) < 0.01
+            );
+
+            if (!isDefault && hintGroup.node()) {
+                hintGroup.remove();
+            }
+        };
+
+        // Store original updateVisualization and wrap it
+        const originalUpdate = window.updateVisualizationForHint || updateVisualization;
+        window.updateVisualizationForHint = originalUpdate;
+
+        // Check after each update
+        const wrappedUpdate = updateVisualization;
+        updateVisualization = function() {
+            wrappedUpdate.call(this);
+            checkIfDefault();
+        };
+    }
+
+    // ============================================================================
     // INITIALIZATION
     // ============================================================================
 
@@ -1104,6 +1202,9 @@ document.addEventListener('DOMContentLoaded', function () {
         // Create draggable handles
         createDraggableHandles(topGroup, triangularDistributionState.marginalX, xScaleTop, yScaleTop, 'horizontal');
         createDraggableHandles(leftGroup, triangularDistributionState.marginalY, xScaleLeft, yScaleLeft, 'vertical');
+
+        // Create drag hint
+        createDragMeHint();
 
         // Initial render
         updateVisualization();

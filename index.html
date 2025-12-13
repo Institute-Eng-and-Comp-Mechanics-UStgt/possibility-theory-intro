@@ -163,8 +163,10 @@
             <strong>Task:</strong> How can you adjust the bounds in the example to make $\text{N}(A) = \text{P}(A)$?
             <details>
                 <summary>Answer</summary>
-                The possibility distribution must have the same values at the interval edges. That is, symmetric around the peak here.
+                <div>
+                By letting the possibility distribution have the same value at both interval edges. That is, symmetric around the peak for this distribution.
                 This is due to how the possibility distribution $\pi$ was constructed with the <dt-cite key="DuboisEtAl04">optimal transform</dt-cite>.
+                </div>
             </details>
         </p>
     </div>
@@ -174,8 +176,11 @@
             <strong>Task:</strong> How would the orange curve and the interval have to look like if $\text{P}(A)$ should equal $\Pi(A)$?
             <details>
                 <summary>Answer</summary>
+                <div>
                 The interval would have to be one-sided, i.e., the interval would have to start at the very left edge or end at the very right edge of the possibility distribution.
-                The possibility distribution would be monotonically decreasing or increasing, respectively.
+                The possibility distribution would equal the (complementary) cumulative distribution function of the probability distribution.
+                That is, it would be monotonically decreasing or increasing, respectively.
+                </div>
             </details>
         </p>
     </div>
@@ -200,13 +205,40 @@
         <li><strong>Orderings</strong>, such as "A is more likely than B and B is more likely than C"</li>
     </ul>
     </p>
+
+    <div class="coming-from-box">
+        <p>Coming from interval arithmetic?</p>
+        <details>
+            <summary>Click for more</summary>
+            <p>
+                Possibility theory with set-valued--that is, distributions with possibilities of either 0 or 1--distributions is interval arithmetic!
+                Any operations you can do with intervals, you can also do with such possibility distributions.
+                This connection is obvious from language: any point inside an interval is possible and any point outside it is impossible.
+            </p>
+            <p>
+                An immediate advantage is the ability to express disconnected intervals, e.g., "the value is either between 1 and 2 or between 4 and 5" in a single distribution.
+            </p>
+        </details>
+    </div>
     
     <h2>Possibilistic Imprecise Variables and Their Calculus</h2>
     <p>
-        In probability theory, random variables are functions that map outcomes from a sample space (the real world) to numbers, making them accessible to mathematical analysis.
-        We call the possibilistic counterpart to random variables <strong>imprecise variables</strong>.
+        Imprecise variables are functions that map outcomes from a sample space (the real world) to numbers, making them accessible to mathematical analysis.
         We write $\pi_X$ for the possibility distribution that contains our knowledge about the phenomenon that $X$ describes.
     </p>
+    <p>
+        It's this mapping from the sample space to real numbers that makes uncertainty quantification feasible for engineering practice!
+    </p>
+    <div class="coming-from-box">
+        <p>Coming from probability theory?</p>
+        <details>
+        <summary>Click for more</summary>
+            <p>
+                The probabilistic counterpart to the imprecise variable is the <strong>random variable</strong>.
+                The different naming emphasizes that imprecise probabilities serve to describe phenomenon beyond randomness, such as incomplete knowledge or expert opinion.
+            </p>
+        </details>
+    </div>
 
     <h3>Forward Propagation of Possibility Distributions and Consistency Preservation</h3>
     <p>
@@ -224,9 +256,6 @@
         What is remarkable about this procedure is that consistency is preserved under application of the extension principle.
         This means, the pushforward probability distributions of the distributions that were originally included in the credal set defined by $\pi_X$ are also included in the credal set defined by $\pi_Y$.
     </p>
-    <!-- <p>
-
-    </p> -->
 
     <h3>Interpretation of Results</h3>
     <p>
@@ -240,7 +269,7 @@
         The level $\alpha$ of that cut gives a lower bound on the probability of the event $B$: $$\text{P}(B) \geq N(A) \geq 1 - \alpha$$.
     </p>
 
-    <h3>Marginal and Joint Distributions</h3>
+    <h3>Joint and Marginal Distributions</h3>
 
     <p>
         Given two imprecise variables $X$ and $Y$ with possibility distributions $\pi_X$ and $\pi_Y$, respectively, the <strong>joint possibility distribution</strong> $\pi_{X,Y}$ is obtained by a possibility-correcting copula $\mathcal{J}$.
@@ -250,36 +279,40 @@
         The two important cases are<br>
         independence
         $$\mathcal{J}_\text{independence}(\pi_1, \dots, \pi_n) = 1 - (1 - \min(\pi_1, \dots, \pi_n))^n$$
-        
         and--more conservative--unknown dependence
         $$\mathcal{J}_\text{unknown}(\pi_1, \dots, \pi_n) = \min(1, n \cdot \min(\pi_1, \dots, \pi_n)).$$
-
-        The following interactive visualization demonstrates these concepts. Drag the vertices of the triangular distributions to adjust the input marginals, and toggle between copulas to see their effect on the joint distribution and extracted marginals.
     </p>
+
+    <div class="coming-from-box">
+        <p>Coming from fuzzy arithmetic?</p>
+        <details>
+            <summary>Click for more</summary>
+            <p>
+                If you are familiar with fuzzy arithmetic, you might recognize the joint distribution construction as similar to the extension principle-based approach to fuzzy arithmetic.
+                The key difference here is the use of possibility-correcting copulas, which ensure that the resulting joint distribution remains consistent to the underlying probability distributions.
+            </p>
+            <p>
+                The copula in fuzzy arithmetic is typically the minimum operator, which corresponds to the case of perfect dependence in possibility theory.
+                $$\mathcal{J}_\text{fuzzy}(\pi_1, \dots, \pi_n) = \min(\pi_1, \dots, \pi_n).$$
+            </p>
+        </details>
+    </div>
     <p>
         <strong>Marginalization</strong> is essentially a forward propagation.
         Given a joint possibility distribution $\pi_{X,Y}$, the marginals $\pi_X$ and $\pi_Y$ can be obtained by applying the supremum operator over the other variable.
         $$\pi_X(x) = \sup_y \pi_{X,Y}(x,y)$$
         $$\pi_Y(y) = \sup_x \pi_{X,Y}(x,y)$$
-        
         Notice how the extracted output marginals (right and bottom, in blue) may differ from the input marginals (top and left, in orange) depending on the copula choice. The dashed gray overlay shows the original input distribution for comparison.
     </p>
     
-    <div id="marginal-chart" class="l-body">
-        <!-- D3.js chart will be appended here by marginal.js -->
-    </div>
-
     <div class="task-box">
         <p>
-            <strong>Task:</strong> Explore the effect of the copula choice on the joint distribution and the extracted marginals.
+            <strong>Task:</strong> Explore the effect of the copula choice on the joint distribution, its marginals and a computed output.
         </p>
     </div>
 
-
-    <h3>Conditionals</h3>
-    <div class="under-construction l-body-outset">
-        <span class="icon">🚧</span>
-        <span>Content in progress</span>
+    <div id="marginal-chart" class="l-body">
+        <!-- D3.js chart will be appended here by marginal.js -->
     </div>
 
     <h3>Information Fusion</h3>
