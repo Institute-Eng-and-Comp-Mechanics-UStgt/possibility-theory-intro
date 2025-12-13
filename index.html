@@ -316,10 +316,23 @@
     </div>
 
     <h3>Information Fusion</h3>
-    <div class="under-construction l-body-outset">
-        <span class="icon">🚧</span>
-        <span>Content in progress</span>
-    </div>
+    <p>
+        Information fusion is the process of combining multiple sources of information about the same quantity.
+        It is a vast and complicated topic in imprecise probabilities and uncertainty quantification in general.
+        For now, let's only cover two basic fusion operations in possibility theory.
+    </p>
+    <p>
+        The most common fusion operation is the <strong>conjunctive fusion</strong>, which combines two possibilistically encoded information sources $\pi_1$ and $\pi_2$ by means of a copula $\mathcal{J}$:
+            $$\pi_\text{fused}(x) = \mathcal{J}(\pi_1(x), \pi_2(x)).$$
+        Conjunctive fusion is used when the sources of information are considered to be complementary, i.e., both sources need to agree on a value for it to be considered possible.
+        Think of two sensors measuring the same quantity with different accuracies, or a group of friends trying to agree on a flavor of ice cream everyone likes.
+    </p>
+    <p>
+        <strong>Disjunctive fusion</strong>, on the other hand, is less common and combines information by taking the maximum:
+            $$\pi_\text{fused}(x) = \max(\pi_1(x), \pi_2(x)).$$
+        Disjunctive fusion is used when the sources of information are considered to be alternatives rather than complements.
+        Think of finding the set of languages at least one person in a group of colleagues speaks.
+    </p>
 
     <h2>Numerical Considerations</h2>
     <div class="under-construction l-body-outset">
