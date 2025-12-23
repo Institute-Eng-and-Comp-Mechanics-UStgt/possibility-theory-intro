@@ -596,6 +596,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .call(d3.axisLeft(yScaleTop).tickValues([0, 1]))
             .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_TICK);
 
+        topGroup.append("text")
+            .attr("class", "y-axis-label-top")
+            .attr("x", -20)
+            .attr("y", (yScaleTop(0) + yScaleTop(1)) / 2)
+            .attr("text-anchor", "middle")
+            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_LABEL)
+            .style("fill", COLORS.TEXT_COLOR)
+            .text("π");
+
         // Left plot axes (vertical orientation, flipped)
         leftGroup.append("g")
             .attr("class", "x-axis-left")
@@ -617,6 +626,16 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("transform", "rotate(90)")
             .attr("dx", "0.7em")
             .attr("dy", "1.5em");
+
+        leftGroup.append("text")
+            .attr("class", "x-axis-label-left")
+            .attr("transform", "rotate(90)")
+            .attr("x", -20)
+            .attr("y", -60)
+            .attr("text-anchor", "middle")
+            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_LABEL)
+            .style("fill", COLORS.TEXT_COLOR)
+            .text("π");
 
         // Center plot axes (flipped y-axis)
         centerGroup.append("g")
@@ -651,6 +670,16 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("dx", "0.7em")
             .attr("dy", "1.5em");
 
+        rightGroup.append("text")
+            .attr("class", "x-axis-label-right")
+            .attr("transform", "rotate(90)")
+            .attr("x", -20)
+            .attr("y", -60)
+            .attr("text-anchor", "middle")
+            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_LABEL)
+            .style("fill", COLORS.TEXT_COLOR)
+            .text("π");
+
         // Bottom plot axes
         bottomGroup.append("g")
             .attr("class", "x-axis-bottom")
@@ -663,6 +692,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .call(d3.axisLeft(yScaleBottom).tickValues([0, 1]))
             .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_TICK);
 
+        bottomGroup.append("text")
+            .attr("class", "y-axis-label-bottom")
+            .attr("x", -20)
+            .attr("y", (yScaleBottom(0) + yScaleBottom(1)) / 2)
+            .attr("text-anchor", "middle")
+            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_LABEL)
+            .style("fill", COLORS.TEXT_COLOR)
+            .text("π");
+
         // Forward propagation plot axes
         forwardGroup.append("g")
             .attr("class", "x-axis-forward")
@@ -674,6 +712,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("class", "y-axis-forward")
             .call(d3.axisLeft(yScaleForward).tickValues([0, 1]))
             .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_TICK);
+
+        forwardGroup.append("text")
+            .attr("class", "y-axis-label-forward")
+            .attr("x", -20)
+            .attr("y", (yScaleForward(0) + yScaleForward(1)) / 2)
+            .attr("text-anchor", "middle")
+            .style("font-size", VisualizationConfig.FONT_SIZES.AXIS_LABEL)
+            .style("fill", COLORS.TEXT_COLOR)
+            .text("π");
 
         forwardGroup.append("text")
             .attr("class", "axis-label")
@@ -721,7 +768,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .style("fill", COLORS.FORWARD_PROPAGATION)
             .text("OUTPUT");
 
-        // "JOINT SPACE" label on top of 2D plot at the bottom (white)
+        // "JOINT DISTRIBUTION" label on top of 2D plot at the bottom (white)
         svg.append("text")
             .attr("x", centerX + CENTER_PLOT_SIZE / 2)
             .attr("y", centerY + CENTER_PLOT_SIZE - 10)
@@ -729,7 +776,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .style("font-size", "16px")
             .style("font-weight", "bold")
             .style("fill", "white")
-            .text("JOINT SPACE");
+            .text("JOINT DISTRIBUTION");
     }
 
     // ============================================================================

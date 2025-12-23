@@ -241,6 +241,16 @@ document.addEventListener('DOMContentLoaded', function () {
         .attr("class", "line-second-plot").style("fill", "none")
         .style("stroke", COLORS.DERIVED_PLOT_LINE).style("stroke-width", "2px")
         .attr("d", lineGeneratorSecondPlot);
+
+    // Add label for the orange curve
+    secondPlotGroup.append("text")
+        .attr("class", "curve-label-second-plot")
+        .attr("x", xScale(GAUSSIAN_MEAN + GAUSSIAN_STD_DEV))
+        .attr("y", yScaleSecondPlot(0.35) - 10)
+        .style("text-anchor", "middle")
+        .style("font-size", VisualizationConfig.FONT_SIZES.LABEL)
+        .style("fill", COLORS.DERIVED_PLOT_LINE)
+        .text("π");
     
     // --- Slider Event Logic ---
     const integralSliderElementFo = sliderFoDiv.node();
